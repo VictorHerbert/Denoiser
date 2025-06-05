@@ -3,15 +3,16 @@
 
 #include <string>
 
-struct Framebuffer{
-    uint2 size;
-    uchar1* data;
-    const int channels = 3;
+struct Image{
+    int3 size;
+    uchar* data;
 
-    Framebuffer(std::string filename);
-    void save(std::string filename);
-    uchar1 getPx(int3 pos);
-    uchar1 setPx(int3 pos, uchar1 col);
+    Image(std::string filename);
+    bool save(std::string filename);
+    ~Image();
+
+    uchar getPx(int3 pos);
+    uchar setPx(int3 pos, uchar col);
 };
 
 #endif

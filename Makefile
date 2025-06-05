@@ -23,7 +23,7 @@ TARGET = $(BUILD_DIR)/main
 all: $(TARGET)
 
 run: $(TARGET)
-	./$(TARGET) -r sample/cornell/32/Render.png
+	./$(TARGET) -r sample/cornell/32/Render.png -s build/sample/cornell32.png
 
 debug: $(TARGET)
 	cuda-gdb -ex=run -ex=quit ./$(TARGET)
@@ -47,9 +47,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cu
 # Clean
 clean:
 	rm -rf $(BUILD_DIR)/*
-	rm -rf $(OUTPUT_DIR)/*
 	mkdir -p $(BUILD_DIR)
-	mkdir -p $(OUTPUT_DIR)
 
 # Include auto-generated dependency files
 -include $(OBJ:.o=.d)
