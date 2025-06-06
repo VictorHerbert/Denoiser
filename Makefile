@@ -1,5 +1,4 @@
 # Compiler and flags
-#NVCC = /usr/local/cuda-12.8/bin/nvcc
 NVCC = nvcc
 CXX = $(NVCC)
 CXXFLAGS_LK = -w -G -g -O0 -std=c++17 -arch=sm_75 -I./include
@@ -23,7 +22,8 @@ TARGET = $(BUILD_DIR)/main
 all: $(TARGET)
 
 run: $(TARGET)
-	./$(TARGET) -r sample/cornell/32/Render.png -s build/sample/cornell32.png
+	@mkdir -p build/sample
+	@./$(TARGET) -r sample/cornell/32/Render.png -s build/sample/cornell32.png
 
 debug: $(TARGET)
 	cuda-gdb -ex=run -ex=quit ./$(TARGET)
@@ -38,10 +38,12 @@ $(TARGET): $(OBJ)
 # Compile rules with dependency generation
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
+	$(NVCC) $(CXXFLAGS) -M -MT $@ $< > $(BUILD_DIR)/$*.d
 	$(NVCC) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cu
 	@mkdir -p $(dir $@)
+	$(NVCC) $(CXXFLAGS) -M -MT $@ $< > $(BUILD_DIR)/$*.d
 	$(NVCC) $(CXXFLAGS) -c $< -o $@
 
 # Clean
@@ -52,4 +54,4 @@ clean:
 # Include auto-generated dependency files
 -include $(OBJ:.o=.d)
 
-.PHONY: all clean
+.PHONY: all clean run debug sanitize

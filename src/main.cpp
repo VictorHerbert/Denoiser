@@ -3,7 +3,13 @@
 #include "image.cuh"
 #include "third_party/helper_math.h"
 
+#include "test.cuh"
+
 int main(int argc, char* argv[]){
+    test();
+    return 0;
+
+    
     std::string renderPath;
     std::string savePath;
 
@@ -22,19 +28,10 @@ int main(int argc, char* argv[]){
         }
     }
 
-    Image image(renderPath);
-
-    int3 pos;
-    for(pos.x = 0; pos.x < image.size.x; pos.x++)
-        for(pos.y = 0; pos.y < image.size.y; pos.y++)
-            for(pos.z = 0; pos.z < image.size.z; pos.z++)
-                image.setPx(pos, 255 - image.getPx(pos));
-
-
-    if(!image.save(savePath)){
+    /*if(!output.save(savePath)){
         std::cerr << "Couldnt write to " << savePath << "\n";
         return 1;
-    }
+    }*/
 
     return 0;
 }
