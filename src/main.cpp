@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "image.cuh"
+#include "matrix.cuh"
 #include "third_party/helper_math.h"
 
 #include "test.cuh"
