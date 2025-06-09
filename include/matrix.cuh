@@ -33,4 +33,18 @@ struct Mat3D {
 };
 
 
+template <typename T>
+struct CPUMat3D : Mat3D<T> {
+    std::vector<T> vData;
+
+    CPUMat3D(int3 size){
+        this->size = size;
+        vData.resize(this->totalSize());
+        this->data = vData.data();
+    }
+};
+
+
+
+
 #endif

@@ -17,28 +17,23 @@ bool test_image(){
 bool test_gauss_filter(){
     Image input;
     input.read("sample/cornell/32/Render.png");
-    
-    std::vector<float> inBuffer(input.mat.totalSize());
-    Mat3D<float> inFloat = {input.mat.size, inBuffer.data()};
+        
+    CPUMat3D<float> inFloat(input.mat.size);
     for(int i = 0; i < inFloat.totalSize(); i++)
         inFloat.data[i] = static_cast<float>(input.mat.data[i])/255;
 
-    std::vector<float> outBuffer(input.mat.totalSize());
-    Mat3D<float> outFloat = {input.mat.size, outBuffer.data()};
-    
+    CPUMat3D<float> outFloat(input.mat.size);
     
     gaussianFilterCPU(inFloat, outFloat);
 
-    input.close();
-
-    std::vector<uchar> outCharBuffer(input.mat.totalSize());
-    Mat3D<uchar> outChar = {outFloat.size, outCharBuffer.data()};
+    CPUMat3D<uchar> outChar(input.mat.size);
     for(int i = 0; i < outFloat.totalSize(); i++)
         outChar.data[i] = static_cast<uchar>(outFloat.data[i]*255);
         
     Image output = {outChar};
 
     output.save("build/sample/gaussian.png");
+    input.close();
 
     return true;
 }

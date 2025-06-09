@@ -8,7 +8,7 @@
 
 struct Image{
     Mat3D<uchar> mat;
-
+    
     bool read(std::string filename);
     bool close();
     bool save(std::string filename);

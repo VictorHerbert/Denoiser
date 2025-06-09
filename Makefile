@@ -38,18 +38,18 @@ $(TARGET): $(OBJ)
 # Compile rules with dependency generation
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(NVCC) $(CXXFLAGS) -M -MT $@ $< > $(BUILD_DIR)/$*.d
+	@$(NVCC) $(CXXFLAGS) -M -MT $@ $< > $(BUILD_DIR)/$*.d
 	$(NVCC) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cu
 	@mkdir -p $(dir $@)
-	$(NVCC) $(CXXFLAGS) -M -MT $@ $< > $(BUILD_DIR)/$*.d
+	@$(NVCC) $(CXXFLAGS) -M -MT $@ $< > $(BUILD_DIR)/$*.d
 	$(NVCC) $(CXXFLAGS) -c $< -o $@
 
 # Clean
 clean:
-	rm -rf $(BUILD_DIR)/*
-	mkdir -p $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR)/*
+	@mkdir -p $(BUILD_DIR)
 
 # Include auto-generated dependency files
 -include $(OBJ:.o=.d)
