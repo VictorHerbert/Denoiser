@@ -14,6 +14,7 @@ INCLUDE_DIR = include
 SRC = $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*.cu)
 OBJ = $(SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 OBJ := $(OBJ:$(SRC_DIR)/%.cu=$(BUILD_DIR)/%.o)
+BLENDER = "C:\Program Files\Blender Foundation\Blender 4.2\blender.exe"
 
 # Targets
 TARGET = $(BUILD_DIR)/main
@@ -45,6 +46,13 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cu
 	@mkdir -p $(dir $@)
 	@$(NVCC) $(CXXFLAGS) -M -MT $@ $< > $(BUILD_DIR)/$*.d
 	$(NVCC) $(CXXFLAGS) -c $< -o $@
+
+render: scenes/cornell.blend
+	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 32
+	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 64
+	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 128
+
+.PHONY: render
 
 # Clean
 clean:

@@ -39,7 +39,7 @@ void gaussianFilterCPU(Mat3D<float> in, Mat3D<float> out, int kerSize){
                         if( nx >= 0 && nx < in.size.x &&
                             ny >= 0 && ny < in.size.y ){
                             float3 dcol = make_float3(in(nx,ny,0), in(nx,ny,1), in(nx,ny,2)) - make_float3(in(x,y,0), in(x,y,1), in(x,y,2));
-                            float w = gaussian(make_float2(dx,dy), 1) * gaussian(dcol, 2);
+                            float w = gaussian(make_float2(dx,dy), 5) * gaussian(dcol, .1);
                             acum += in(nx,ny,ch) * w;
                             normFactor += w;
                         }   

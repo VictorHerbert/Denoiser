@@ -16,7 +16,9 @@ bool test_image(){
 
 bool test_gauss_filter(){
     Image input;
-    input.read("sample/cornell/32/Render.png");
+    //input.read("sample/cornell/32/Render.png");
+    input.read("render/cornell/128samples/Render0024.png");
+    
         
     CPUMat3D<float> inFloat(input.mat.size);
     for(int i = 0; i < inFloat.totalSize(); i++)
@@ -25,6 +27,7 @@ bool test_gauss_filter(){
     CPUMat3D<float> outFloat(input.mat.size);
     
     gaussianFilterCPU(inFloat, outFloat);
+    
 
     CPUMat3D<uchar> outChar(input.mat.size);
     for(int i = 0; i < outFloat.totalSize(); i++)
