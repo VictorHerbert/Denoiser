@@ -1,0 +1,42 @@
+#include "test.cuh"
+
+#include <iostream>
+
+#include "matrix.cuh"
+#include "image.cuh"
+#include "filter.cuh"
+
+TEST(image){    
+    Image image;
+    image.read("sample/cornell/32/Render.png");
+    image.save("build/sample/test_image.png");
+
+    return TestStatus::SUCCESS;
+}
+
+TEST(gauss_filter){
+    Image input;
+    //input.read("sample/cornell/32/Render.png");
+    input.read("render/cornell/128samples/Render0024.png");
+    
+        
+    CPUMat3D<float> inFloat(input.mat.size);
+    for(int i = 0; i < inFloat.totalSize(); i++)
+        inFloat.data[i] = static_cast<float>(input.mat.data[i])/255;
+
+    CPUMat3D<float> outFloat(input.mat.size);
+    
+    gaussianFilterCPU(inFloat, outFloat);
+    
+
+    CPUMat3D<uchar> outChar(input.mat.size);
+    for(int i = 0; i < outFloat.totalSize(); i++)
+        outChar.data[i] = static_cast<uchar>(outFloat.data[i]*255);
+        
+    Image output = {outChar};
+
+    output.save("build/sample/gaussian.png");
+    input.close();
+    
+    return TestStatus::SUCCESS;
+}

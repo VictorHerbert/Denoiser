@@ -18,7 +18,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/main",
-            "args": ["-r", "sample/cornell/32/Render.png", "-s", "build/sample/cornell32.png"],
+            "args": ["-t"],
             "preLaunchTask": "Make",
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

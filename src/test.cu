@@ -1,49 +1,30 @@
 #include "test.cuh"
 
-#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <iomanip>
 
-#include "matrix.cuh"
-#include "image.cuh"
-#include "filter.cuh"
-
-bool test_image(){    
-    Image image;
-    image.read("sample/cornell/32/Render.png");
-    image.save("build/sample/test_image.png");
-
-    return true;
-}
-
-bool test_gauss_filter(){
-    Image input;
-    //input.read("sample/cornell/32/Render.png");
-    input.read("render/cornell/128samples/Render0024.png");
-    
-        
-    CPUMat3D<float> inFloat(input.mat.size);
-    for(int i = 0; i < inFloat.totalSize(); i++)
-        inFloat.data[i] = static_cast<float>(input.mat.data[i])/255;
-
-    CPUMat3D<float> outFloat(input.mat.size);
-    
-    gaussianFilterCPU(inFloat, outFloat);
-    
-
-    CPUMat3D<uchar> outChar(input.mat.size);
-    for(int i = 0; i < outFloat.totalSize(); i++)
-        outChar.data[i] = static_cast<uchar>(outFloat.data[i]*255);
-        
-    Image output = {outChar};
-
-    output.save("build/sample/gaussian.png");
-    input.close();
-
-    return true;
-}
+std::vector<std::pair<std::string, TestStatus(*)()>> test_functions;
 
 void test(){
-    std::cout << "Testing started\n" << std::endl;
-    TEST_FUNC(test_image);
-    TEST_FUNC(test_gauss_filter);
-    std::cout << "\nFinished" << std::endl;   
+    size_t max_size = 0;
+    for(auto [str, func] : test_functions)
+        max_size = std::max(max_size, str.size());
+
+    std::cout << "Start Testing\n" << std::endl;
+    for(auto [str, func] : test_functions){
+        TestStatus status = func();
+        std::cout << "Test " << std::left <<std::setfill('.') << std::setw(max_size+3) << str << to_string(status) << std::endl;
+    }
+    std::cout << "\nFinish Testing" << std::endl;
+}
+
+std::string to_string(TestStatus id){
+    switch (id) {
+        case TestStatus::SUCCESS: return "SUCCESS";
+        case TestStatus::FAIL: return "FAIL";
+        case TestStatus::NOT_IMPLEMENTED: return "NOT_IMPLEMENTED";
+        default:          return "Unknown";
+    }
 }

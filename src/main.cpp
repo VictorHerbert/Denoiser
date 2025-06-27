@@ -5,18 +5,18 @@
 
 #include "test.cuh"
 
-int main(int argc, char* argv[]){
-    test();
-    return 0;
-
-    
+int main(int argc, char* argv[]){    
     std::string renderPath;
     std::string savePath;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
 
-        if (arg == "-r" && i + 1 < argc) {
+        if (arg == "-t") {
+            test();
+            return 0;
+        }
+        else if (arg == "-r" && i + 1 < argc) {
             renderPath = argv[i + 1];
             i++;
         } else if (arg == "-s" && i + 1 < argc) {

@@ -26,6 +26,10 @@ run: $(TARGET)
 	@mkdir -p build/sample
 	@./$(TARGET) -r sample/cornell/32/Render.png -s build/sample/cornell32.png
 
+test: $(TARGET)
+	@mkdir -p build/sample
+	@./$(TARGET) -t
+
 debug: $(TARGET)
 	cuda-gdb -ex=run -ex=quit ./$(TARGET)
 
@@ -34,13 +38,13 @@ sanitize: $(TARGET)
 
 # Link main
 $(TARGET): $(OBJ)
-	$(NVCC) $(CXXFLAGS_LK) -o $@ $^
+	@$(NVCC) $(CXXFLAGS_LK) -o $@ $^
 
 # Compile rules with dependency generation
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	@$(NVCC) $(CXXFLAGS) -M -MT $@ $< > $(BUILD_DIR)/$*.d
-	$(NVCC) $(CXXFLAGS) -c $< -o $@
+	@$(NVCC) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cu
 	@mkdir -p $(dir $@)
