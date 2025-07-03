@@ -52,9 +52,12 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cu
 	$(NVCC) $(CXXFLAGS) -c $< -o $@
 
 render: scenes/cornell.blend
+	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 1
+	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 4
+	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 8
+	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 16
 	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 32
-	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 64
-	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 128
+	$(BLENDER) -b scenes/cornell.blend -P scripts/setup_passes.py -- 8192
 
 .PHONY: render
 

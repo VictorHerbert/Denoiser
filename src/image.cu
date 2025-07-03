@@ -16,6 +16,7 @@
 
 bool Image::read(std::string filename){
     mat.data = (uchar*) stbi_load(filename.c_str(), &(mat.size.x), &(mat.size.y), &(mat.size.z), 0);
+    stbi_allocated = true;
     return true;
 }
 
@@ -26,4 +27,12 @@ bool Image::close(){
 
 bool Image::save(std::string filename){
     return stbi_write_png(filename.c_str(), mat.size.x, mat.size.y, mat.size.z, mat.data, mat.size.x * mat.size.z);
+}
+
+CPUMat3D<float> fmatFromImage(Image img){
+    CPUMat3D<float> out(img.mat.size);
+    for(int i = 0; i < img.mat.totalSize(); i++)
+        out.data[i] = static_cast<float>(img.mat.data[i])/255;
+
+    return out;
 }

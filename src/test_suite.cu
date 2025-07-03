@@ -6,37 +6,49 @@
 #include "image.cuh"
 #include "filter.cuh"
 
-TEST(image){    
+TEST(image){
     Image image;
-    image.read("sample/cornell/32/Render.png");
-    image.save("build/sample/test_image.png");
-
+    image.read("render/cornell/render_1.png");
+    image.save("build/test/render_1.png");
+    image.close();
     return TestStatus::SUCCESS;
 }
 
-TEST(gauss_filter){
-    Image input;
-    //input.read("sample/cornell/32/Render.png");
-    input.read("render/cornell/128samples/Render0024.png");
-    
-        
-    CPUMat3D<float> inFloat(input.mat.size);
-    for(int i = 0; i < inFloat.totalSize(); i++)
-        inFloat.data[i] = static_cast<float>(input.mat.data[i])/255;
+TEST(snr){
+    Image original, noisy;
+    original.read("render/cornell/render_1.png");
+    noisy.read("render/cornell/render_8192.png");
 
+    auto originalFmat = fmatFromImage(original);
+    auto noisyFmat = fmatFromImage(noisy);
+
+    float3 zeroSnr = snrCPU(originalFmat, originalFmat);
+    //float3 snr = snrCPU(originalFmat, noisyFmat);
+
+    original.close();
+    noisy.close();
+    
+    return TestStatus::SUCCESS;
+}
+
+TEST(crossBilateralfilter){
+    Image input, golden;
+    input.read("render/cornell/render_1.png");
+    golden.read("render/cornell/render_8192.png");
+    auto fgolden = fmatFromImage(golden);
+
+    CPUMat3D<float> inFloat = fmatFromImage(input);
     CPUMat3D<float> outFloat(input.mat.size);
     
-    gaussianFilterCPU(inFloat, outFloat);
-    
+    crossBilateralfilterCPU(inFloat, outFloat, inFloat, 7, 2, 0.5, 2.0);
 
-    CPUMat3D<uchar> outChar(input.mat.size);
-    for(int i = 0; i < outFloat.totalSize(); i++)
-        outChar.data[i] = static_cast<uchar>(outFloat.data[i]*255);
+    float3 preSnr = snrCPU(fgolden, inFloat);
+    float3 posSnr = snrCPU(fgolden, outFloat);
         
-    Image output = {outChar};
+    Image output(outFloat);
+    output.save("build/test/crossBilateralfilterCPU.png");
 
-    output.save("build/sample/gaussian.png");
     input.close();
-    
+
     return TestStatus::SUCCESS;
 }
