@@ -7,34 +7,27 @@
 #include "filter.cuh"
 
 TEST(image){
-    Image image;
-    image.read("render/cornell/render_1.png");
+    Image image("render/cornell/render_1.png");
     image.save("build/test/render_1.png");
-    image.close();
     return TestStatus::SUCCESS;
 }
 
 TEST(snr){
-    Image original, noisy;
-    original.read("render/cornell/render_1.png");
-    noisy.read("render/cornell/render_8192.png");
+    Image original("render/cornell/render_1.png");
+    Image noisy("render/cornell/render_8192.png");
 
     auto originalFmat = fmatFromImage(original);
     auto noisyFmat = fmatFromImage(noisy);
 
     float3 zeroSnr = snrCPU(originalFmat, originalFmat);
     //float3 snr = snrCPU(originalFmat, noisyFmat);
-
-    original.close();
-    noisy.close();
     
     return TestStatus::SUCCESS;
 }
 
 TEST(crossBilateralfilter){
-    Image input, golden;
-    input.read("render/cornell/render_1.png");
-    golden.read("render/cornell/render_8192.png");
+    Image input("render/cornell/render_32.png");
+    Image golden("render/cornell/render_8192.png");
     auto fgolden = fmatFromImage(golden);
 
     CPUMat3D<float> inFloat = fmatFromImage(input);
@@ -46,9 +39,7 @@ TEST(crossBilateralfilter){
     float3 posSnr = snrCPU(fgolden, outFloat);
         
     Image output(outFloat);
-    output.save("build/test/crossBilateralfilterCPU.png");
-
-    input.close();
+    output.save("build/test/crossBilateralfilterCPU.png");    
 
     return TestStatus::SUCCESS;
 }

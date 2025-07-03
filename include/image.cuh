@@ -11,17 +11,14 @@ struct Image{
     bool stbi_allocated = false;
     
     Image(){}
-    Image(CPUMat3D<float> fmat){
-        mat = CPUMat3D<uchar>(fmat.size);
-        for(int i = 0; i < fmat.totalSize(); i++)
-            mat.data[i] = static_cast<uchar>(fmat.data[i]*255);
-    }
+    Image(std::string filename);
+    Image(CPUMat3D<float> fmat);
+    ~Image();
     
-    bool read(std::string filename);
     bool close();
     bool save(std::string filename);
 };
 
-CPUMat3D<float> fmatFromImage(Image img);
+CPUMat3D<float> fmatFromImage(const Image& img);
 
 #endif
