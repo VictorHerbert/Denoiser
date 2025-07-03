@@ -41,34 +41,41 @@ float3 snrCPU(Mat3D<float> original, Mat3D<float> noisy){
     
 }
 
-void crossBilateralfilterCPU(Mat3D<float> in, Mat3D<float> out, Mat3D<float> aux_buffer,
-    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAux)
-{
 
-    if(in.size.x != out.size.x || in.size.y != out.size.y || in.size.z != out.size.z)
+void waveletfilterCPU(Mat3D<float> in, Mat3D<float> out, Mat3D<float> albedo, Mat3D<float> normal,
+    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal)
+{
+    if(in.size != out.size)
         throw std::runtime_error("Matrix sizes differ");
 
     uint3 pos = {0,0,0};
-    do {
-        out(pos.x, pos.y, pos.z) = crossBilateralfilterPixel(pos, in, out, aux_buffer, kerSize, sigmaSpace, sigmaColor, sigmaAux);
+    do {        
+        out(pos.x, pos.y, pos.z) = waveletfilterPixel(pos, in, out, albedo, normal, kerSize, 1<<1, sigmaSpace, sigmaColor, sigmaAlbedo, sigmaNormal);        
     } while(in.advanceIterator(pos));
 
 }
 
-float crossBilateralfilterPixel(uint3 pos, Mat3D<float> in, Mat3D<float> out, Mat3D<float> aux_buffer,
-    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAux)
+float waveletfilterPixel(uint3 pos, Mat3D<float> in, Mat3D<float> out, Mat3D<float> albedo, Mat3D<float> normal,
+    int kerSize, int offset, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal)
 {
     float acum = 0;
     float normFactor = 0;
-    for(int dx = -kerSize/2; dx <= kerSize/2; dx++){
-        for(int dy = -kerSize/2; dy <= kerSize/2; dy++){
-            int nx = pos.x + dx;
-            int ny = pos.y + dy;
+    int halfSize = kerSize/2;
+    for(int dx = -halfSize; dx <= halfSize; dx++){
+        for(int dy = -halfSize; dy <= halfSize; dy++){
+            int nx = pos.x + dx * offset;
+            int ny = pos.y + dy * offset;
         
             if( nx >= 0 && nx < in.size.x &&
                 ny >= 0 && ny < in.size.y ){
-                float3 dcol = make_float3(in(nx,ny,0), in(nx,ny,1), in(nx,ny,2)) - make_float3(in(pos.x,pos.y,0), in(pos.x,pos.y,1), in(pos.x,pos.y,2));
-                float w = gaussian(make_float2(dx,dy), 5) * gaussian(dcol, .1);
+                float3 dcol     = make_float3(in(nx,ny,0), in(nx,ny,1), in(nx,ny,2)) - make_float3(in(pos.x,pos.y,0), in(pos.x,pos.y,1), in(pos.x,pos.y,2));
+                float3 dAlbedo  = make_float3(albedo(nx,ny,0), albedo(nx,ny,1), albedo(nx,ny,2)) - make_float3(albedo(pos.x,pos.y,0), albedo(pos.x,pos.y,1), albedo(pos.x,pos.y,2));                
+                float3 dNormal  = 1-make_float3(albedo(nx,ny,0), albedo(nx,ny,1), albedo(nx,ny,2)) * make_float3(albedo(pos.x,pos.y,0), albedo(pos.x,pos.y,1), albedo(pos.x,pos.y,2));                
+
+                float w =
+                    gaussian(make_float2(dx,dy), sigmaSpace) * 
+                    gaussian(dcol, sigmaColor) * 
+                    gaussian(dAlbedo, sigmaAlbedo);
                 acum += in(nx,ny,pos.z) * w;
                 normFactor += w;
             }   

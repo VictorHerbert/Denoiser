@@ -21,25 +21,30 @@ TEST(snr){
 
     float3 zeroSnr = snrCPU(originalFmat, originalFmat);
     //float3 snr = snrCPU(originalFmat, noisyFmat);
-    
+
     return TestStatus::SUCCESS;
 }
 
-TEST(crossBilateralfilter){
-    Image input("render/cornell/render_32.png");
+TEST(waveletfilter){
+    Image render("render/cornell/render_1.png");
     Image golden("render/cornell/render_8192.png");
-    auto fgolden = fmatFromImage(golden);
 
-    CPUMat3D<float> inFloat = fmatFromImage(input);
-    CPUMat3D<float> outFloat(input.mat.size);
-    
-    crossBilateralfilterCPU(inFloat, outFloat, inFloat, 7, 2, 0.5, 2.0);
+    auto golden_f = fmatFromImage(golden);
+    auto render_f = fmatFromImage(render);
+    CPUMat3D<float> out_f(render.mat.size);
 
-    float3 preSnr = snrCPU(fgolden, inFloat);
-    float3 posSnr = snrCPU(fgolden, outFloat);
-        
-    Image output(outFloat);
-    output.save("build/test/crossBilateralfilterCPU.png");    
+    waveletfilterCPU(render_f, out_f,
+        fmatFromImage(Image("render/cornell/albedo.png")),
+        fmatFromImage(Image("render/cornell/normal.png")),
+        7, 5, 5, 10, 10);
+
+    float3 preSnr = snrCPU(golden_f, render_f);
+    float3 posSnr = snrCPU(golden_f, out_f);
+
+    Image output(out_f);
+    output.save("build/test/crossBilateralfilterCPU.png");
+
+    printf("\nSNR %f %f %f -> %f %f %f\n", preSnr.x, preSnr.y, preSnr.z, posSnr.x, posSnr.y, posSnr.z);
 
     return TestStatus::SUCCESS;
 }

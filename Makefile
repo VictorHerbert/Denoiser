@@ -27,7 +27,7 @@ run: $(TARGET)
 	@./$(TARGET) -r sample/cornell/32/Render.png -s build/sample/cornell32.png
 
 test: $(TARGET)
-	@mkdir -p build/sample
+	@mkdir -p build/test
 	@./$(TARGET) -t
 
 debug: $(TARGET)

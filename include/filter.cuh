@@ -13,13 +13,13 @@ float gaussian(float3 p, float sigma);
 
 float3 snrCPU(Mat3D<float> original, Mat3D<float> noisy);
 
-float crossBilateralfilterPixel(uint3 pos, Mat3D<float> in, Mat3D<float> out, Mat3D<float> aux_buffer,
-    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAux);
+float waveletfilterPixel(uint3 pos, Mat3D<float> in, Mat3D<float> out, Mat3D<float> albedo, Mat3D<float> normal,
+    int kerSize, int offset, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
 
-void crossBilateralfilterCPU(Mat3D<float> in, Mat3D<float> out, Mat3D<float> aux_buffer,
-    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAux);
+void waveletfilterCPU(Mat3D<float> in, Mat3D<float> out, Mat3D<float> albedo, Mat3D<float> normal,
+    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
 
-void crossBilateralfilterGPU(Mat3D<float> in, Mat3D<float> out, Mat3D<float> aux_buffer,
-    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAux);
+void waveletfilterGPU(Mat3D<float> in, Mat3D<float> out, Mat3D<float> albedo, Mat3D<float> normal,
+    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
 
 #endif

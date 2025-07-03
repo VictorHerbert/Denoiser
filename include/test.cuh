@@ -24,6 +24,9 @@ struct FuncRegistrar {
     static FuncRegistrar _reg_##f(#f, _test_##f); \
     TestStatus _test_##f()
 
+#define SKIP(f) \
+    TestStatus f()
+
 void test();
 
 #endif

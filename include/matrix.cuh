@@ -44,7 +44,6 @@ struct Mat3D {
         return data[index(x, y, z)];
     }
 
-    // New overloads for operator() with uint3
     inline T& operator()(uint3 pos) {
         return data[index(pos)];
     }
@@ -53,7 +52,6 @@ struct Mat3D {
         return data[index(pos)];
     }
 
-    // Optional: operator[] overload for uint3
     inline T& operator[](uint3 pos) {
         return data[index(pos)];
     }
