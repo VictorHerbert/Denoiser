@@ -36,7 +36,7 @@ TEST(waveletfilter){
     waveletfilterCPU(render_f, out_f,
         fmatFromImage(Image("render/cornell/albedo.png")),
         fmatFromImage(Image("render/cornell/normal.png")),
-        7, 5, 5, 10, 10);
+        5, 1, 1e1, 1, 1e-2);
 
     float3 preSnr = snrCPU(golden_f, render_f);
     float3 posSnr = snrCPU(golden_f, out_f);

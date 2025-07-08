@@ -32,35 +32,25 @@ struct Mat3D {
         return x * size.y * size.z + y * size.z + z;
     }
 
-    inline int index(uint3 pos) const {
-        return index(pos.x, pos.y, pos.z);
+    inline int index(int3 p) const {
+        return p.x * size.y * size.z + p.y * size.z + p.z;
     }
 
-    inline T& operator()(int x, int y, int z) {
-        return data[index(x, y, z)];
-    }
-
-    inline const T& operator()(int x, int y, int z) const {
-        return data[index(x, y, z)];
-    }
-
-    inline T& operator()(uint3 pos) {
+    inline T& operator[](int3 pos) {
         return data[index(pos)];
     }
 
-    inline const T& operator()(uint3 pos) const {
+    inline const T& operator[](int3 pos) const {
         return data[index(pos)];
     }
 
-    inline T& operator[](uint3 pos) {
-        return data[index(pos)];
+    inline auto operator[](int2 pos) {
+        if constexpr (std::is_same_v<T, float>) {
+            return make_float3(data[index(pos.x, pos.y, 0)], data[index(pos.x, pos.y, 1)], data[index(pos.x, pos.y, 2)]);
+        }
     }
 
-    inline const T& operator[](uint3 pos) const {
-        return data[index(pos)];
-    }
-
-    inline bool advanceIterator(uint3& pos) {
+    inline bool advanceIterator(int3& pos) {
         pos.z++;
         if (pos.z < size.z)
             return true;
@@ -77,7 +67,6 @@ struct Mat3D {
 
         return false;
     }
-
 };
 
 

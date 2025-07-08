@@ -36,6 +36,10 @@ debug: $(TARGET)
 sanitize: $(TARGET)
 	compute-sanitizer --tool memcheck --show-backtrace=yes ./$(TARGET)
 
+prof:
+	@nsys profile -o build/prof ./$(TARGET) -t
+	nsight-sys build/prof.nsys-rep
+
 # Link main
 $(TARGET): $(OBJ)
 	@$(NVCC) $(CXXFLAGS_LK) -o $@ $^
