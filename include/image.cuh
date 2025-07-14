@@ -4,21 +4,25 @@
 #include <string>
 #include <vector>
 
+#include "cuda_runtime.h"
+
 #include "matrix.cuh"
 
 struct Image{
-    CPUMat3D<uchar> mat;
+    int3 shape;
+    uchar* buffer;
+    std::vector<uchar> vBuffer;
     bool stbi_allocated = false;
     
     Image(){}
+    Image(float3* data, int2 shape);
     Image(std::string filename);
-    Image(CPUMat3D<float> fmat);
     ~Image();
     
     bool close();
     bool save(std::string filename);
 };
 
-CPUMat3D<float> fmatFromImage(const Image& img);
+std::vector<float3> fVecFromImage(const Image& img);
 
 #endif

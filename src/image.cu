@@ -14,16 +14,20 @@
 #include <stdexcept>
 
 
-Image::Image(CPUMat3D<float> fmat){
-    mat = CPUMat3D<uchar>(fmat.size);
-    for(int i = 0; i < fmat.totalSize(); i++)
-        mat.data[i] = static_cast<uchar>(fmat.data[i]*255);
+Image::Image(float3* fmat, int2 shape){
+    vBuffer.resize(totalSize(shape));
+    for(int i = 0; i < vBuffer.size(); i+=3){
+        buffer[i] = static_cast<uchar>(fmat[i].x*255);
+        buffer[i+1] = static_cast<uchar>(fmat[i].y*255);
+        buffer[i+2] = static_cast<uchar>(fmat[i].z*255);
+    }
+    buffer = vBuffer.data();
     stbi_allocated = false;
 }
 
 
-Image::Image(std::string filename){
-    mat.data = (uchar*) stbi_load(filename.c_str(), &(mat.size.x), &(mat.size.y), &(mat.size.z), 0);
+Image::Image(std::string filename){    
+    buffer = (uchar*) stbi_load(filename.c_str(), &(shape.x), &(shape.y), &(shape.z), 0);
     stbi_allocated = true;
 }
 
@@ -33,18 +37,22 @@ Image::~Image(){
 }
 
 bool Image::close(){
-    stbi_image_free(mat.data);
+    stbi_image_free(buffer);
     return true;
 }
 
 bool Image::save(std::string filename){
-    return stbi_write_png(filename.c_str(), mat.size.x, mat.size.y, mat.size.z, mat.data, mat.size.x * mat.size.z);
+    return stbi_write_png(filename.c_str(), shape.x, shape.y, shape.z, buffer, shape.x * shape.z);
 }
 
-CPUMat3D<float> fmatFromImage(const Image& img){
-    CPUMat3D<float> out(img.mat.size);
-    for(int i = 0; i < img.mat.totalSize(); i++)
-        out.data[i] = static_cast<float>(img.mat.data[i])/255;
+std::vector<float3> fVecFromImage(const Image& img){
+    std::vector<float3> out(img.shape.x * img.shape.y);
+    for(int i = 0; i < totalSize(img.shape); i+=3)
+        out[i/3] = {
+            static_cast<float>(img.buffer[i])/255,
+            static_cast<float>(img.buffer[i+1])/255,
+            static_cast<float>(img.buffer[i+2])/255
+        };
 
     return out;
 }

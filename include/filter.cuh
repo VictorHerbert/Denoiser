@@ -11,15 +11,19 @@ const int WAVELET   = 1<<2;
 float gaussian(float2 p, float sigma);
 float gaussian(float3 p, float sigma);
 
-float3 snrCPU(Mat3D<float> original, Mat3D<float> noisy);
+float3 snrCPU(float3* original, float3* noisy, int2 shape);
+float3 snrGPU(float3* original, float3* noisy, int2 shape);
 
-float waveletfilterPixel(int3 pos, Mat3D<float> in, Mat3D<float> out, Mat3D<float> albedo, Mat3D<float> normal,
+void waveletfilterCPU(float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
+    int kerSize, int depth, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
+
+void waveletfilterGPU(float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
+    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
+
+__global__ void waveletKernel(float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
     int kerSize, int offset, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
 
-void waveletfilterCPU(Mat3D<float> in, Mat3D<float> out, Mat3D<float> albedo, Mat3D<float> normal,
-    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
-
-void waveletfilterGPU(Mat3D<float> in, Mat3D<float> out, Mat3D<float> albedo, Mat3D<float> normal,
-    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
+float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
+    int kerSize, int offset, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
 
 #endif
