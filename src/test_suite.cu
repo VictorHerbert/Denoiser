@@ -38,11 +38,11 @@ TEST(waveletfilter){
     auto fAlbedo = fVecFromImage(Image("render/cornell/albedo.png"));
     auto fNormal = fVecFromImage(Image("render/cornell/normal.png"));
 
-    waveletfilterCPU(render_f.data(), out_f.data(),
+    waveletfilterGPU(render_f.data(), out_f.data(),
         fAlbedo.data(),
         fNormal.data(),
         shape,
-        5, 1, 1, 1, 1, 1e-2);
+        5, 1, 1, 1, 1,1e-2);
 
     float3 preSnr = snrCPU(golden_f.data(), render_f.data(), shape);
     float3 posSnr = snrCPU(golden_f.data(), out_f.data(), shape);

@@ -18,12 +18,12 @@ void waveletfilterCPU(float3* in, float3* out, float3* albedo, float3* normal, i
     int kerSize, int depth, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
 
 void waveletfilterGPU(float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
-    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
+    int kerSize, int depth, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
 
 __global__ void waveletKernel(float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
     int kerSize, int offset, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
 
-float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
+__host__ __device__ float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
     int kerSize, int offset, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal);
 
 #endif

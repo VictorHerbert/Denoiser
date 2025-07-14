@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <stdio.h>
 
 #include "cuda_runtime.h"
 #include <stdexcept>
@@ -16,6 +17,29 @@ inline bool operator==(const int3& a, const int3& b) {
 inline bool operator!=(const int3& a, const int3& b) {
     return !(a == b);
 }
+
+template <typename T>
+struct CudaVector{
+    T* data;
+    size_t size;
+
+    CudaVector(int size){
+        this->size = size;
+        cudaMalloc(&data, this->size);
+    }
+
+    CudaVector(T* v, int size){
+        this->size = size;
+        cudaMalloc(&data, this->size);
+        cudaMemcpy(data, v, size, cudaMemcpyHostToDevice);
+    }
+
+    ~CudaVector(){
+        printf("Freed cuda mem");
+        cudaFree(data);
+    }
+
+};
 
 int index(int x, int y, int2 size);
 int index(int2 p, int2 size);

@@ -53,13 +53,12 @@ inline bool advanceIterator(int2& pos, int2 size) {
 
 void waveletfilterCPU(float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
     int kerSize, int depth, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal)
-{    
-    float3* buffer[2] = {in, out};    
+{
+    float3* buffer[2] = {in, out};
     for(int i = 0; i < depth; i++){
         int2 pos = {0,0};
         do {
-            out[index(pos, shape)] =
-                waveletfilterPixel(pos, buffer[i%2], buffer[(i+1)%2], albedo, normal, shape, kerSize, 1<<i, sigmaSpace, sigmaColor, sigmaAlbedo, sigmaNormal);
+            waveletfilterPixel(pos, buffer[i%2], buffer[(i+1)%2], albedo, normal, shape, kerSize, 1<<i, sigmaSpace, sigmaColor, sigmaAlbedo, sigmaNormal);
         } while(advanceIterator(pos, shape));
     }
 
@@ -67,23 +66,40 @@ void waveletfilterCPU(float3* in, float3* out, float3* albedo, float3* normal, i
     out = buffer[(depth+1)%2];
 }
 
-void waveletfilterGPU(float3* in, float3* out, float3* albedo, float3* normal, int2 size,
-    int kerSize, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal)
+void waveletfilterGPU(float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
+    int kerSize, int depth, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal)
 {
-    float* buffer[2];
-    
-    //cudaMalloc(&buffer[0], );
+    CudaVector<float3> vIn(in, totalSize(shape));
+    CudaVector<float3> vOut(totalSize(shape));
+    CudaVector<float3> vAlbedo(albedo, totalSize(shape));
+    CudaVector<float3> vNormal(normal, totalSize(shape));
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((shape.x + 15) / 16, (shape.y + 15) / 16);
+
+
+    waveletKernel<<<gridSize,blockSize>>>(vIn.data, vOut.data, vAlbedo.data, vNormal.data, shape, kerSize, 0, sigmaSpace, sigmaColor, sigmaAlbedo, sigmaNormal);
+
+    cudaMemcpy(vOut.data, out, totalSize(shape), cudaMemcpyDeviceToHost);
+
 
 }
 
-__global__ void waveletKernel(float3* in, float3* out, float3* albedo, float3* normal, int2 size,
+__global__ void waveletKernel(float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
     int kerSize, int offset, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal){
 
+    int2 pos = {
+        blockIdx.x * blockDim.x + threadIdx.x,
+        blockIdx.y * blockDim.y + threadIdx.y
+    };
+
+    waveletfilterPixel(pos, in, out, albedo, normal, shape, kerSize, 0, sigmaSpace, sigmaColor, sigmaAlbedo, sigmaNormal);
+
 }
 
-float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float3* albedo, float3* normal, int2 size,
+float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float3* albedo, float3* normal, int2 shape,
     int kerSize, int offset, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal)
-{    
+{
     float3 acum = {0, 0, 0};
     float normFactor = 0;
     int halfSize = kerSize/2;
@@ -97,26 +113,27 @@ float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float3* albedo, flo
             n.x = pos.x + d.x * offset;
             n.y = pos.y + d.y * offset;
 
-            if( n.x >= 0 && n.x < size.x &&
-                n.y >= 0 && n.y < size.y ){
-                float3 dcol    = in[index(n, size)] - in[index(pos, size)];
-                float3 dAlbedo = albedo[index(n, size)] - albedo[index(pos, size)];
+            if( n.x >= 0 && n.x < shape.x &&
+                n.y >= 0 && n.y < shape.y ){
+                float3 dcol    = in[index(n, shape)] - in[index(pos, shape)];
+                float3 dAlbedo = albedo[index(n, shape)] - albedo[index(pos, shape)];
                 //float3 dNormal = 1.0 - normal[n]*normal[pos];
                 float wWavelet = h[abs(d.x)] * h[abs(d.y)];
-                
+
 
                 float w =
-                    wWavelet 
+                    wWavelet
                     //* gaussian(make_float2(d*offset), sigmaSpace) * // Simplify using exp(a) * exp(b) = exp(a + b)
                     * gaussian(dcol, sigmaColor);
                     //* gaussian(dAlbedo, sigmaAlbedo);
 
-                acum += in[index(n, size)] * w;
+                acum += in[index(n, shape)] * w;
                 normFactor += w;
             }
         }
     }
     acum /= normFactor;
+    out[index(pos, shape)] = acum;
     return acum;
 
 }
