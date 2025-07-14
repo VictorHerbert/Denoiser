@@ -15,13 +15,14 @@
 
 
 Image::Image(float3* fmat, int2 shape){
-    vBuffer.resize(totalSize(shape));
-    for(int i = 0; i < vBuffer.size(); i+=3){
-        buffer[i] = static_cast<uchar>(fmat[i].x*255);
-        buffer[i+1] = static_cast<uchar>(fmat[i].y*255);
-        buffer[i+2] = static_cast<uchar>(fmat[i].z*255);
-    }
+    vBuffer.resize(3*totalSize(shape));
+    this->shape = {shape.x, shape.y, 3};
     buffer = vBuffer.data();
+    for(int i = 0; i < vBuffer.size(); i+=3){
+        vBuffer[i] = static_cast<uchar>(fmat[i/3].x*255);
+        vBuffer[i+1] = static_cast<uchar>(fmat[i/3].y*255);
+        vBuffer[i+2] = static_cast<uchar>(fmat[i/3].z*255);
+    }
     stbi_allocated = false;
 }
 
