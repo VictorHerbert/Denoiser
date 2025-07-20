@@ -9,6 +9,7 @@
             "type": "cuda-gdb",
             //"debuggerPath": "/home/victor/workspace/CuBer/cuda-gdb",
             "request": "launch",
+            "args": ["-t"],
             "program": "${workspaceFolder}/build/main",
             "preLaunchTask": "Make",
             "cwd": "${workspaceFolder}"

@@ -23,28 +23,25 @@ struct CudaVector{
     T* data;
     size_t size;
 
-    CudaVector(int size){
-        this->size = size;
-        cudaMalloc(&data, this->size);
+    CudaVector(size_t size) : size(size) {
+        cudaMalloc(&data, size * sizeof(T));
     }
 
-    CudaVector(T* v, int size){
-        this->size = size;
-        cudaMalloc(&data, this->size);
-        cudaMemcpy(data, v, size, cudaMemcpyHostToDevice);
+    CudaVector(T* v, size_t size) : size(size) {
+        cudaMalloc(&data, size * sizeof(T));
+        cudaMemcpy(data, v, size * sizeof(T), cudaMemcpyHostToDevice);
     }
 
-    ~CudaVector(){
-        printf("Freed cuda mem");
+    ~CudaVector() {
         cudaFree(data);
     }
 
 };
 
-int index(int x, int y, int2 size);
-int index(int2 p, int2 size);
+__device__ __host__ int index(int x, int y, int2 size);
+__device__ __host__ int index(int2 p, int2 size);
 bool advanceIterator(int2& pos, int2 size);
-int totalSize(int2 shape);
-int totalSize(int3 shape);
+__device__ __host__ int totalSize(int2 shape);
+__device__ __host__ int totalSize(int3 shape);
 
 #endif
