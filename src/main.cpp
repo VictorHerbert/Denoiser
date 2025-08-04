@@ -3,9 +3,12 @@
 #include "matrix.cuh"
 #include "third_party/helper_math.h"
 
+#include "window.cuh"
 #include "test.cuh"
 
-int main(int argc, char* argv[]){    
+int main(int argc, char* argv[]){
+    window();
+    return 0;
     std::string renderPath;
     std::string savePath;
 

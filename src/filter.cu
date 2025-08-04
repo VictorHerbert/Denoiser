@@ -86,6 +86,7 @@ void waveletfilterGPU(float3* in, float3* out, float3* albedo, float3* normal, i
     CudaVector<float3> b2(totalSize(shape));
 
 
+
     float3* buffer[2] = {b1.data, b2.data};
     for(int i = 0; i < depth; i++){
         waveletKernel<<<gridSize,blockSize>>>(buffer[i%2], buffer[(i+1)%2], nullptr, vAlbedo.data, vNormal.data, shape, kerSize, 1<<i, sigmaSpace, sigmaColor/(1<<i), sigmaAlbedo, sigmaNormal);
@@ -97,7 +98,7 @@ void waveletfilterGPU(float3* in, float3* out, float3* albedo, float3* normal, i
 
 __global__ void waveletKernel(float3* in, float3* out, float* variance, float3* albedo, float3* normal, int2 shape,
     int kerSize, int offset, float sigmaSpace, float sigmaColor, float sigmaAlbedo, float sigmaNormal){
-
+    
     int2 pos = {
         blockIdx.x * blockDim.x + threadIdx.x,
         blockIdx.y * blockDim.y + threadIdx.y
@@ -136,7 +137,7 @@ float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float* variance, fl
                 float ln = lum(in[index(n, shape)]);
                 float dcol = abs(lp-ln);
                 float2 dSpace = make_float2(d*offset);
-                float3 dAlbedo = albedo[index(n, shape)] - albedo[index(pos, shape)];
+                float3 dAlbedo = {0,0,0};//albedo[index(n, shape)] - albedo[index(pos, shape)];
 
                 float wCol = gaussian(dcol, sqrt(var)*sigmaColor);
                 float wSpace = gaussian(dSpace, sigmaSpace);
