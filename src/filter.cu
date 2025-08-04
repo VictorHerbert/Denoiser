@@ -88,7 +88,7 @@ void waveletfilterGPU(float3* in, float3* out, float3* albedo, float3* normal, i
 
     float3* buffer[2] = {b1.data, b2.data};
     for(int i = 0; i < depth; i++){
-        waveletKernel<<<gridSize,blockSize>>>(buffer[i%2], buffer[(i+1)%2], nullptr, vAlbedo.data, vNormal.data, shape, kerSize, 1<<i, sigmaSpace, sigmaColor, sigmaAlbedo, sigmaNormal);
+        waveletKernel<<<gridSize,blockSize>>>(buffer[i%2], buffer[(i+1)%2], nullptr, vAlbedo.data, vNormal.data, shape, kerSize, 1<<i, sigmaSpace, sigmaColor/(1<<i), sigmaAlbedo, sigmaNormal);
         cudaDeviceSynchronize();
     }
 
@@ -121,10 +121,10 @@ float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float* variance, fl
     int halfSize = kerSize/2;
     float h[3] = {3.0/8.0, 1.0/4.0, 1.0/16.0}; // Coefs of Pascal TriaNGLE
     int2 d, n;
-    float var = 1;//variance[index(pos, shape)];
+    float var = 10;//variance[index(pos, shape)];
 
 
-    //float lp = lum(in[index(pos, shape)]);
+    float lp = lum(in[index(pos, shape)]);
 
     for(d.x = -halfSize; d.x <= halfSize; d.x++){
         for(d.y = -halfSize; d.y <= halfSize; d.y++){
@@ -133,8 +133,8 @@ float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float* variance, fl
 
             if( n.x >= 0 && n.x < shape.x &&
                 n.y >= 0 && n.y < shape.y ){
-                //float ln = lum(in[index(n, shape)]);
-                float dcol = 1;//abs(lp-ln);
+                float ln = lum(in[index(n, shape)]);
+                float dcol = abs(lp-ln);
                 float2 dSpace = make_float2(d*offset);
                 float3 dAlbedo = albedo[index(n, shape)] - albedo[index(pos, shape)];
 
@@ -148,8 +148,7 @@ float3 waveletfilterPixel(int2 pos, float3* in, float3* out, float* variance, fl
                     * wSpace // Simplify using exp(a) * exp(b) = exp(a + b)
                     * wCol
                     * wAlbedo;
-                if(index(n, shape) >= totalSize(shape))
-                    printf("WTF\n");
+
                 colAcum += in[index(n, shape)] * w;
                 normFactor += w;
             }
