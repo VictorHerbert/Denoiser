@@ -34,7 +34,7 @@ debug: $(TARGET)
 	cuda-gdb -ex=run -ex=quit ./$(TARGET)
 
 sanitize: $(TARGET)
-	compute-sanitizer --tool memcheck --show-backtrace=yes ./$(TARGET)
+	compute-sanitizer --tool memcheck --show-backtrace=yes ./$(TARGET) -t
 
 prof:
 	@nsys profile -o build/prof ./$(TARGET) -t
